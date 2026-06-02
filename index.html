@@ -1,0 +1,2474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode 模版刷题系统</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Claude 主题色 */
+            --bg-primary: #faf9f6;
+            --bg-secondary: #f5f3ef;
+            --bg-card: #ffffff;
+            --bg-card-hover: #fdfcfa;
+            --bg-dark: #1a1915;
+            
+            --claude-orange: #da7756;
+            --claude-coral: #e07a5f;
+            --claude-brown: #b5836d;
+            --claude-tan: #d4a574;
+            --claude-cream: #f0e6d3;
+            
+            --accent-primary: #da7756;
+            --accent-secondary: #b5836d;
+            --accent-success: #5a9a7a;
+            --accent-warning: #d4a574;
+            --accent-danger: #c75d5d;
+            
+            --text-primary: #2d2a26;
+            --text-secondary: #6b6560;
+            --text-muted: #9a938b;
+            --text-light: #ffffff;
+            
+            --border: #e5e0d8;
+            --border-dark: #d0c9be;
+            
+            --shadow-sm: 0 1px 3px rgba(45,42,38,0.08);
+            --shadow-md: 0 4px 12px rgba(45,42,38,0.1);
+            --shadow-lg: 0 8px 30px rgba(45,42,38,0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(218,119,86,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(218,119,86,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-glow {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-glow-1 { top: -150px; right: -150px; background: var(--claude-orange); }
+        .bg-glow-2 { bottom: -150px; left: -150px; background: var(--claude-tan); }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* 头部 */
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--claude-orange), var(--claude-coral));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 24px;
+            color: white;
+            box-shadow: var(--shadow-lg), 0 4px 20px rgba(218,119,86,0.25);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        /* 标签页导航 */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 28px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab-btn:hover {
+            border-color: var(--claude-orange);
+            color: var(--text-primary);
+            background: var(--bg-card-hover);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--claude-orange), var(--claude-coral));
+            border-color: transparent;
+            color: white;
+            box-shadow: var(--shadow-md), 0 4px 15px rgba(218,119,86,0.25);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--claude-brown);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--claude-orange);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        /* 面板 */
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .panel-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-primary);
+        }
+
+        .panel-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .panel-icon.orange { background: rgba(218,119,86,0.12); }
+        .panel-icon.green { background: rgba(90,154,122,0.12); }
+        .panel-icon.blue { background: rgba(181,131,109,0.12); }
+        .panel-icon.purple { background: rgba(181,131,109,0.15); }
+        .panel-icon.yellow { background: rgba(212,165,116,0.15); }
+
+        /* 表单元素 */
+        .form-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--claude-orange);
+            box-shadow: 0 0 0 3px rgba(218,119,86,0.1);
+            background: var(--bg-card);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--claude-orange), var(--claude-coral));
+            color: white;
+            box-shadow: var(--shadow-md), 0 4px 15px rgba(218,119,86,0.25);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg), 0 6px 25px rgba(218,119,86,0.35);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--claude-brown);
+            background: var(--bg-secondary);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-success), #6aab8a);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--accent-danger), #d67070);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-sm {
+            padding: 10px 16px;
+            font-size: 0.9rem;
+        }
+
+        /* 模版卡片 */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .template-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .template-card:hover {
+            border-color: var(--claude-brown);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .template-card.needs-review {
+            border-color: var(--claude-tan);
+            box-shadow: 0 0 20px rgba(212,165,116,0.2);
+            background: linear-gradient(135deg, rgba(212,165,116,0.05), rgba(218,119,86,0.05));
+        }
+
+        .template-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .template-name {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--claude-brown);
+        }
+
+        .template-count {
+            background: rgba(181,131,109,0.12);
+            color: var(--claude-brown);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .template-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        .template-progress {
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .template-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-success), var(--claude-brown));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .template-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .template-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        /* 复习流程 */
+        .review-flow {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .review-step {
+            display: none;
+        }
+
+        .review-step.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .review-template-card {
+            background: linear-gradient(135deg, rgba(218,119,86,0.08), rgba(212,165,116,0.08));
+            border: 2px solid var(--claude-orange);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 500px;
+            margin: 0 auto 30px;
+        }
+
+        .review-template-name {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--claude-orange);
+            margin-bottom: 10px;
+        }
+
+        .review-template-hint {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .review-problem-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            margin: 0 auto 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .review-problem-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--claude-orange);
+        }
+
+        .review-problem-name {
+            font-size: 1.3rem;
+            margin-top: 8px;
+            color: var(--text-primary);
+        }
+
+        .review-problem-meta {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .review-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .review-actions .btn {
+            flex: 1;
+            padding: 16px;
+        }
+
+        .review-counter {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        /* 题目列表 */
+        .problem-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .problem-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .problem-list::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 3px;
+        }
+
+        .problem-list::-webkit-scrollbar-thumb {
+            background: var(--border-dark);
+            border-radius: 3px;
+        }
+
+        .problem-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .problem-item:hover {
+            border-color: var(--border);
+            background: var(--bg-card);
+        }
+
+        .problem-item-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .problem-item-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--claude-orange);
+            min-width: 50px;
+        }
+
+        .problem-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .problem-item-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .problem-item-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-tag {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .difficulty-easy { background: rgba(90,154,122,0.15); color: var(--accent-success); }
+        .difficulty-medium { background: rgba(212,165,116,0.2); color: #b8860b; }
+        .difficulty-hard { background: rgba(199,93,93,0.15); color: var(--accent-danger); }
+
+        .template-tag {
+            background: rgba(181,131,109,0.12);
+            color: var(--claude-brown);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        .delete-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: rgba(199,93,93,0.1);
+            color: var(--accent-danger);
+        }
+
+        /* 打卡日历 */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            padding: 8px 0;
+            font-weight: 500;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .calendar-day.today {
+            border: 2px solid var(--claude-orange);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .calendar-day.has-activity {
+            background: linear-gradient(135deg, rgba(90,154,122,0.2), rgba(90,154,122,0.1));
+            color: var(--accent-success);
+        }
+
+        .calendar-day.has-activity::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--accent-success);
+        }
+
+        .calendar-day.empty {
+            background: transparent;
+        }
+
+        .streak-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(218,119,86,0.1), rgba(212,165,116,0.1));
+            border-radius: 16px;
+            margin-top: 20px;
+        }
+
+        .streak-flame { font-size: 2.5rem; }
+        
+        .streak-info { text-align: left; }
+
+        .streak-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--claude-orange);
+        }
+
+        .streak-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(45,42,38,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--bg-card);
+            border: 1px solid var(--accent-success);
+            border-radius: 12px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: var(--shadow-lg);
+            transform: translateX(150%);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 1001;
+            color: var(--text-primary);
+        }
+
+        .toast.show { transform: translateX(0); }
+        .toast-icon { font-size: 1.5rem; }
+
+        /* 导入导出 */
+        .export-section {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .export-section .btn {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        #importInput { display: none; }
+
+        /* 两栏布局 */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 完成动画 */
+        .completion-animation {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .completion-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: bounce 0.6s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .completion-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent-success);
+            margin-bottom: 10px;
+        }
+
+        .completion-subtext {
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">LC</div>
+                <h1>模版刷题系统</h1>
+            </div>
+            <p class="subtitle">以模版为中心 · 基于遗忘曲线 · 科学刷题</p>
+        </header>
+
+        <!-- 标签页导航 -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="review">🧠 今日复习</button>
+            <button class="tab-btn" data-tab="add">➕ 添加题目</button>
+            <button class="tab-btn" data-tab="templates">📁 模版管理</button>
+            <button class="tab-btn" data-tab="problems">📋 题目列表</button>
+            <button class="tab-btn" data-tab="calendar">📅 打卡日历</button>
+        </div>
+
+        <!-- 统计 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalTemplates">0</div>
+                <div class="stat-label">模版数量</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalProblems">0</div>
+                <div class="stat-label">已刷题目</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="todayReviewCount">0</div>
+                <div class="stat-label">今日待复习模版</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="streakDays">0</div>
+                <div class="stat-label">连续打卡</div>
+            </div>
+        </div>
+
+        <!-- 今日复习 -->
+        <div id="tab-review" class="tab-content active">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon purple">🧠</div>
+                        今日复习
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="startReviewBtn">▶ 开始复习</button>
+                </div>
+                
+                <div id="reviewArea">
+                    <!-- 待复习模版列表 -->
+                    <div id="reviewTemplateList"></div>
+                </div>
+
+                <!-- 复习流程 -->
+                <div id="reviewFlow" class="review-flow" style="display: none;">
+                    <!-- Step 1: 显示模版 -->
+                    <div id="reviewStep1" class="review-step">
+                        <div class="review-counter" id="reviewCounter">模版 1 / 2</div>
+                        <div class="review-template-card">
+                            <div class="review-template-name" id="currentTemplateName">滑动窗口</div>
+                            <div class="review-template-hint">请在脑海中回忆这个模版的骨架代码...</div>
+                        </div>
+                        <div class="review-actions">
+                            <button class="btn btn-primary" id="showProblemsBtn">👀 查看题目</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: 显示题目 -->
+                    <div id="reviewStep2" class="review-step">
+                        <div class="review-counter" id="problemCounter">题目 1 / 2</div>
+                        <div class="review-problem-card">
+                            <div class="review-problem-number" id="currentProblemNumber">#3</div>
+                            <div class="review-problem-name" id="currentProblemName">无重复字符的最长子串</div>
+                            <div class="review-problem-meta">
+                                <span id="currentProblemDifficulty">中等</span>
+                                <span id="currentProblemTemplate">滑动窗口</span>
+                            </div>
+                        </div>
+                        <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                            回忆这道题的核心填空逻辑，你做出来了吗？
+                        </p>
+                        <div class="review-actions">
+                            <button class="btn btn-success" id="reviewSuccessBtn">✓ 做出来了</button>
+                            <button class="btn btn-danger" id="reviewFailBtn">✗ 没做出来</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: 完成 -->
+                    <div id="reviewStep3" class="review-step">
+                        <div class="completion-animation">
+                            <div class="completion-icon">🎉</div>
+                            <div class="completion-text">今日复习完成！</div>
+                            <div class="completion-subtext" id="reviewSummary">共复习 2 个模版，4 道题目</div>
+                        </div>
+                        <div class="review-actions" style="margin-top: 30px;">
+                            <button class="btn btn-primary" id="finishReviewBtn">返回</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 添加题目 -->
+        <div id="tab-add" class="tab-content">
+            <div class="two-column">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <div class="panel-icon orange">➕</div>
+                            添加新题目
+                        </div>
+                    </div>
+                    
+                    <!-- 没有模版时的提示 -->
+                    <div id="noTemplateWarning" style="display: none; background: linear-gradient(135deg, rgba(251,191,36,0.1), rgba(255,107,53,0.1)); border: 1px solid var(--accent-yellow); border-radius: 16px; padding: 20px; margin-bottom: 20px; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">⚠️</div>
+                        <p style="color: var(--accent-yellow); font-weight: 600; margin-bottom: 8px;">还没有创建任何模版</p>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 15px;">请先在右侧创建模版，或点击下方快速创建</p>
+                        <button class="btn btn-primary btn-sm" id="quickCreateFromWarning">+ 快速创建模版</button>
+                    </div>
+                    
+                    <form id="addProblemForm">
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 0 0 100px;">
+                                <label>题号 *</label>
+                                <input type="number" id="problemNumber" placeholder="1" min="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label>题目名称 *</label>
+                                <input type="text" id="problemName" placeholder="Two Sum" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>所属模版 *</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <select id="problemTemplate" required style="flex: 1;">
+                                        <option value="">-- 请选择模版 --</option>
+                                    </select>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="openTemplateModal()" style="white-space: nowrap;">+ 新建</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>难度</label>
+                                <select id="problemDifficulty">
+                                    <option value="easy">简单 Easy</option>
+                                    <option value="medium" selected>中等 Medium</option>
+                                    <option value="hard">困难 Hard</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>核心思路（可选）</label>
+                            <textarea id="problemNotes" placeholder="这道题在模版填空区的关键点是..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">✓ 添加题目</button>
+                    </form>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <div class="panel-icon yellow">📁</div>
+                            创建新模版
+                        </div>
+                    </div>
+                    <form id="createTemplateForm">
+                        <div class="form-group">
+                            <label>模版名称 *</label>
+                            <input type="text" id="newTemplateName" placeholder="如：滑动窗口、二分查找" required>
+                        </div>
+                        <div class="form-group">
+                            <label>模版骨架代码（可选）</label>
+                            <textarea id="newTemplateCode" placeholder="def solution(nums, target):
+    left, right = 0, len(nums) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if nums[mid] == target:
+            return mid
+        elif nums[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return -1" style="min-height: 180px; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">✓ 创建模版</button>
+                    </form>
+                    
+                    <div style="margin-top: 30px;">
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 15px;">或快速添加（稍后可编辑代码）：</p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;" id="presetTemplates">
+                            <button type="button" class="btn btn-secondary btn-sm preset-template" data-name="滑动窗口">滑动窗口</button>
+                            <button type="button" class="btn btn-secondary btn-sm preset-template" data-name="二分查找">二分查找</button>
+                            <button type="button" class="btn btn-secondary btn-sm preset-template" data-name="双指针">双指针</button>
+                            <button type="button" class="btn btn-secondary btn-sm preset-template" data-name="BFS">BFS</button>
+                            <button type="button" class="btn btn-secondary btn-sm preset-template" data-name="DFS">DFS</button>
+                            <button type="button" class="btn btn-secondary btn-sm preset-template" data-name="动态规划">动态规划</button>
+                            <button type="button" class="btn btn-secondary btn-sm preset-template" data-name="回溯">回溯</button>
+                            <button type="button" class="btn btn-secondary btn-sm preset-template" data-name="单调栈">单调栈</button>
+                            <button type="button" class="btn btn-secondary btn-sm preset-template" data-name="前缀和">前缀和</button>
+                            <button type="button" class="btn btn-secondary btn-sm preset-template" data-name="链表操作">链表操作</button>
+                            <button type="button" class="btn btn-secondary btn-sm preset-template" data-name="树遍历">树遍历</button>
+                            <button type="button" class="btn btn-secondary btn-sm preset-template" data-name="堆/优先队列">堆/优先队列</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模版管理 -->
+        <div id="tab-templates" class="tab-content">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon purple">📁</div>
+                        我的模版库
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="openTemplateModal()">+ 新建模版</button>
+                </div>
+                <div class="template-grid" id="templateGrid">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📁</div>
+                        <p>还没有模版</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">去"添加题目"页面创建模版吧</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 题目列表 -->
+        <div id="tab-problems" class="tab-content">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon blue">📋</div>
+                        所有题目
+                    </div>
+                    <select id="filterTemplate" style="padding: 10px 15px; min-width: 150px;">
+                        <option value="all">全部模版</option>
+                    </select>
+                </div>
+                <div class="problem-list" id="problemList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎯</div>
+                        <p>还没有刷过题目</p>
+                    </div>
+                </div>
+                <div class="export-section">
+                    <button class="btn btn-secondary" id="exportBtn">📤 导出数据</button>
+                    <button class="btn btn-secondary" id="importBtn">📥 导入数据</button>
+                    <input type="file" id="importInput" accept=".json">
+                </div>
+            </div>
+        </div>
+
+        <!-- 打卡日历 -->
+        <div id="tab-calendar" class="tab-content">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon green">📅</div>
+                        <span id="calendarMonth">2024年1月</span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary btn-sm" id="prevMonth">◀</button>
+                        <button class="btn btn-secondary btn-sm" id="nextMonth">▶</button>
+                    </div>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+                <div class="streak-display">
+                    <span class="streak-flame">🔥</span>
+                    <div class="streak-info">
+                        <div class="streak-number" id="streakDisplay">0</div>
+                        <div class="streak-label">天连续打卡</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <span class="toast-icon">✓</span>
+        <span class="toast-text">操作成功</span>
+    </div>
+
+    <!-- 备份提醒弹窗 -->
+    <div class="modal-overlay" id="backupReminderModal">
+        <div class="modal" style="text-align: center;">
+            <div style="font-size: 4rem; margin-bottom: 20px;">💾</div>
+            <h2 class="modal-title">该备份数据啦！</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 10px;">
+                定期备份可以防止浏览器清理导致数据丢失
+            </p>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px;" id="lastBackupDate">
+                上次备份: 从未
+            </p>
+            <div style="background: var(--bg-secondary); border-radius: 12px; padding: 15px; margin-bottom: 25px;">
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                    📁 备份文件会下载到你的电脑<br>
+                    建议保存到固定文件夹或云盘
+                </p>
+            </div>
+            <div class="modal-actions" style="flex-direction: column; gap: 12px;">
+                <button class="btn btn-primary" onclick="doBackupNow()" style="width: 100%;">
+                    📤 立即备份
+                </button>
+                <button class="btn btn-secondary" onclick="remindLater()" style="width: 100%;">
+                    ⏰ 明天再说
+                </button>
+                <button class="btn btn-secondary" onclick="closeBackupReminder()" style="width: 100%; opacity: 0.7;">
+                    跳过这次
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建/编辑模版弹窗 -->
+    <div class="modal-overlay" id="templateModal">
+        <div class="modal" style="max-width: 600px;">
+            <h2 class="modal-title" id="templateModalTitle">新建模版</h2>
+            <form id="templateModalForm">
+                <div class="form-group">
+                    <label>模版名称 *</label>
+                    <input type="text" id="modalTemplateName" placeholder="如：滑动窗口、二分查找" required>
+                </div>
+                <div class="form-group">
+                    <label>模版骨架代码</label>
+                    <textarea id="modalTemplateCode" placeholder="在这里输入模版的骨架代码..." style="min-height: 250px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.5;"></textarea>
+                </div>
+                <input type="hidden" id="modalTemplateId">
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeTemplateModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 查看模版代码弹窗 -->
+    <div class="modal-overlay" id="viewTemplateModal">
+        <div class="modal" style="max-width: 650px;">
+            <h2 class="modal-title" id="viewTemplateName">模版名称</h2>
+            <div style="background: var(--bg-secondary); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                <pre id="viewTemplateCode" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; word-break: break-word; margin: 0; color: var(--text-primary);"></pre>
+            </div>
+            <p id="viewTemplateEmpty" style="color: var(--text-muted); text-align: center; padding: 30px; display: none;">
+                这个模版还没有添加骨架代码
+            </p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeViewTemplateModal()">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="editCurrentTemplate()">✏️ 编辑</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== IndexedDB 数据库 ====================
+        const DB_NAME = 'LeetCodeTemplateDB';
+        const DB_VERSION = 1;
+        let db = null;
+
+        const REVIEW_INTERVALS = [1, 2, 4, 7, 15, 30];
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                
+                request.onerror = () => reject(request.error);
+                
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+                    
+                    // 模版存储
+                    if (!database.objectStoreNames.contains('templates')) {
+                        const store = database.createObjectStore('templates', { keyPath: 'id' });
+                        store.createIndex('name', 'name', { unique: true });
+                    }
+                    
+                    // 题目存储
+                    if (!database.objectStoreNames.contains('problems')) {
+                        const store = database.createObjectStore('problems', { keyPath: 'id' });
+                        store.createIndex('number', 'number', { unique: true });
+                        store.createIndex('templateId', 'templateId', { unique: false });
+                    }
+                    
+                    // 打卡记录
+                    if (!database.objectStoreNames.contains('activities')) {
+                        database.createObjectStore('activities', { keyPath: 'date' });
+                    }
+                    
+                    // 设置
+                    if (!database.objectStoreNames.contains('settings')) {
+                        database.createObjectStore('settings', { keyPath: 'key' });
+                    }
+                };
+            });
+        }
+
+        const dbOps = {
+            // 模版操作
+            getAllTemplates() {
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(['templates'], 'readonly');
+                    const store = tx.objectStore('templates');
+                    const req = store.getAll();
+                    req.onsuccess = () => resolve(req.result || []);
+                    req.onerror = () => reject(req.error);
+                });
+            },
+            
+            addTemplate(template) {
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(['templates'], 'readwrite');
+                    const store = tx.objectStore('templates');
+                    const req = store.add(template);
+                    req.onsuccess = () => resolve(template);
+                    req.onerror = () => reject(req.error);
+                });
+            },
+            
+            updateTemplate(template) {
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(['templates'], 'readwrite');
+                    const store = tx.objectStore('templates');
+                    const req = store.put(template);
+                    req.onsuccess = () => resolve(template);
+                    req.onerror = () => reject(req.error);
+                });
+            },
+            
+            deleteTemplate(id) {
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(['templates'], 'readwrite');
+                    const store = tx.objectStore('templates');
+                    const req = store.delete(id);
+                    req.onsuccess = () => resolve(true);
+                    req.onerror = () => reject(req.error);
+                });
+            },
+            
+            // 题目操作
+            getAllProblems() {
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(['problems'], 'readonly');
+                    const store = tx.objectStore('problems');
+                    const req = store.getAll();
+                    req.onsuccess = () => resolve(req.result || []);
+                    req.onerror = () => reject(req.error);
+                });
+            },
+            
+            addProblem(problem) {
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(['problems'], 'readwrite');
+                    const store = tx.objectStore('problems');
+                    const req = store.add(problem);
+                    req.onsuccess = () => resolve(problem);
+                    req.onerror = () => reject(req.error);
+                });
+            },
+            
+            updateProblem(problem) {
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(['problems'], 'readwrite');
+                    const store = tx.objectStore('problems');
+                    const req = store.put(problem);
+                    req.onsuccess = () => resolve(problem);
+                    req.onerror = () => reject(req.error);
+                });
+            },
+            
+            deleteProblem(id) {
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(['problems'], 'readwrite');
+                    const store = tx.objectStore('problems');
+                    const req = store.delete(id);
+                    req.onsuccess = () => resolve(true);
+                    req.onerror = () => reject(req.error);
+                });
+            },
+            
+            // 打卡
+            getAllActivities() {
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(['activities'], 'readonly');
+                    const store = tx.objectStore('activities');
+                    const req = store.getAll();
+                    req.onsuccess = () => resolve(req.result || []);
+                    req.onerror = () => reject(req.error);
+                });
+            },
+            
+            addActivity(date) {
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(['activities'], 'readwrite');
+                    const store = tx.objectStore('activities');
+                    const req = store.put({ date, timestamp: Date.now() });
+                    req.onsuccess = () => resolve(true);
+                    req.onerror = () => reject(req.error);
+                });
+            },
+            
+            // 清空
+            clearAll() {
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(['templates', 'problems', 'activities', 'settings'], 'readwrite');
+                    tx.objectStore('templates').clear();
+                    tx.objectStore('problems').clear();
+                    tx.objectStore('activities').clear();
+                    tx.objectStore('settings').clear();
+                    tx.oncomplete = () => resolve(true);
+                    tx.onerror = () => reject(tx.error);
+                });
+            },
+            
+            importData(templates, problems, activities) {
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(['templates', 'problems', 'activities'], 'readwrite');
+                    templates.forEach(t => tx.objectStore('templates').put(t));
+                    problems.forEach(p => tx.objectStore('problems').put(p));
+                    activities.forEach(a => {
+                        if (typeof a === 'string') {
+                            tx.objectStore('activities').put({ date: a, timestamp: Date.now() });
+                        } else {
+                            tx.objectStore('activities').put(a);
+                        }
+                    });
+                    tx.oncomplete = () => resolve(true);
+                    tx.onerror = () => reject(tx.error);
+                });
+            }
+        };
+
+        // ==================== 应用状态 ====================
+        let appData = {
+            templates: [],
+            problems: [],
+            activityDates: [],
+            currentStreak: 0
+        };
+
+        // 复习状态
+        let reviewState = {
+            templatesQueue: [],
+            currentTemplateIndex: 0,
+            currentProblems: [],
+            currentProblemIndex: 0,
+            totalTemplates: 0,
+            totalProblems: 0,
+            reviewedProblems: 0
+        };
+
+        async function loadData() {
+            appData.templates = await dbOps.getAllTemplates();
+            appData.problems = await dbOps.getAllProblems();
+            const activities = await dbOps.getAllActivities();
+            appData.activityDates = activities.map(a => a.date);
+            updateStreak();
+        }
+
+        // ==================== 遗忘曲线 ====================
+        function getNextReviewDate(template) {
+            const level = template.reviewLevel || 0;
+            if (level >= REVIEW_INTERVALS.length) return null;
+            const lastReview = new Date(template.lastReviewDate || template.createdAt);
+            const next = new Date(lastReview);
+            next.setDate(next.getDate() + REVIEW_INTERVALS[level]);
+            return next;
+        }
+
+        function getTodayReviewTemplates() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            return appData.templates.filter(t => {
+                const problems = appData.problems.filter(p => p.templateId === t.id);
+                if (problems.length === 0) return false;
+                
+                const next = getNextReviewDate(t);
+                if (!next) return false;
+                next.setHours(0, 0, 0, 0);
+                return next <= today;
+            }).sort((a, b) => (a.reviewLevel || 0) - (b.reviewLevel || 0));
+        }
+
+        // 加权随机抽取题目
+        function getRandomProblemsForTemplate(templateId, count = 2) {
+            const problems = appData.problems.filter(p => p.templateId === templateId);
+            if (problems.length === 0) return [];
+            if (problems.length <= count) return [...problems];
+            
+            // 计算权重：复习次数越少、失败次数越多，权重越高
+            const weighted = problems.map(p => {
+                let weight = 10;
+                const reviewCount = p.reviewCount || 0;
+                const failCount = p.failCount || 0;
+                
+                // 从未复习过的权重最高
+                if (reviewCount === 0) weight += 20;
+                // 失败次数越多权重越高
+                weight += failCount * 5;
+                // 复习次数越多权重越低
+                weight -= Math.min(reviewCount * 2, 8);
+                // 最低权重为1
+                weight = Math.max(weight, 1);
+                
+                return { problem: p, weight };
+            });
+            
+            // 按权重随机选择
+            const selected = [];
+            const pool = [...weighted];
+            
+            while (selected.length < count && pool.length > 0) {
+                const totalWeight = pool.reduce((sum, item) => sum + item.weight, 0);
+                let random = Math.random() * totalWeight;
+                
+                for (let i = 0; i < pool.length; i++) {
+                    random -= pool[i].weight;
+                    if (random <= 0) {
+                        selected.push(pool[i].problem);
+                        pool.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+            
+            return selected;
+        }
+
+        // ==================== 打卡 ====================
+        async function recordActivity() {
+            const today = new Date().toDateString();
+            if (!appData.activityDates.includes(today)) {
+                appData.activityDates.push(today);
+                await dbOps.addActivity(today);
+                updateStreak();
+            }
+        }
+
+        function updateStreak() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let streak = 0;
+            let checkDate = new Date(today);
+            
+            while (true) {
+                if (appData.activityDates.includes(checkDate.toDateString())) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+            
+            appData.currentStreak = streak;
+        }
+
+        // ==================== UI 更新 ====================
+        function updateUI() {
+            updateStats();
+            updateTemplateSelect();
+            updateTemplateGrid();
+            updateProblemList();
+            updateReviewArea();
+            updateCalendar();
+        }
+
+        function updateStats() {
+            document.getElementById('totalTemplates').textContent = appData.templates.length;
+            document.getElementById('totalProblems').textContent = appData.problems.length;
+            
+            // 显示待复习模版数量（但每天只复习1个）
+            const pendingCount = getTodayReviewTemplates().length;
+            document.getElementById('todayReviewCount').textContent = pendingCount > 0 ? '1' : '0';
+            
+            document.getElementById('streakDays').textContent = appData.currentStreak;
+            document.getElementById('streakDisplay').textContent = appData.currentStreak;
+        }
+
+        function updateTemplateSelect() {
+            const select = document.getElementById('problemTemplate');
+            const filterSelect = document.getElementById('filterTemplate');
+            const warning = document.getElementById('noTemplateWarning');
+            
+            const options = appData.templates.map(t => 
+                `<option value="${t.id}">${t.name}</option>`
+            ).join('');
+            
+            select.innerHTML = '<option value="">-- 请选择模版 --</option>' + options;
+            filterSelect.innerHTML = '<option value="all">全部模版</option>' + options;
+            
+            // 显示/隐藏无模版警告
+            if (appData.templates.length === 0) {
+                warning.style.display = 'block';
+            } else {
+                warning.style.display = 'none';
+            }
+        }
+
+        function updateTemplateGrid() {
+            const container = document.getElementById('templateGrid');
+            
+            if (appData.templates.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📁</div>
+                        <p>还没有模版</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">去"添加题目"页面创建模版吧</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const reviewTemplates = getTodayReviewTemplates();
+            const reviewIds = reviewTemplates.map(t => t.id);
+            
+            container.innerHTML = appData.templates.map(t => {
+                const problems = appData.problems.filter(p => p.templateId === t.id);
+                const masteredCount = problems.filter(p => (p.reviewCount || 0) >= 3).length;
+                const progress = problems.length > 0 ? (masteredCount / problems.length * 100) : 0;
+                const needsReview = reviewIds.includes(t.id);
+                const level = t.reviewLevel || 0;
+                const hasCode = t.code && t.code.trim();
+                
+                return `
+                    <div class="template-card ${needsReview ? 'needs-review' : ''}">
+                        <div class="template-header">
+                            <span class="template-name">${t.name}</span>
+                            <span class="template-count">${problems.length} 题</span>
+                        </div>
+                        <div class="template-meta">
+                            <span>📊 掌握 ${masteredCount}/${problems.length}</span>
+                            <span>🔄 复习等级 ${level}</span>
+                            ${hasCode ? '<span style="color: var(--accent-success);">📝 有代码</span>' : '<span style="color: var(--text-muted);">📝 无代码</span>'}
+                            ${needsReview ? '<span style="color: var(--claude-tan);">⏰ 待复习</span>' : ''}
+                        </div>
+                        <div class="template-progress">
+                            <div class="template-progress-bar" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="template-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="viewTemplateCode('${t.id}')" title="查看骨架代码">
+                                👁️ 代码
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="openTemplateModal('${t.id}')" title="编辑模版">
+                                ✏️
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="viewTemplateProblems('${t.id}')" title="查看题目">
+                                📋
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteTemplate('${t.id}')" title="删除">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateProblemList() {
+            const container = document.getElementById('problemList');
+            const filterValue = document.getElementById('filterTemplate').value;
+            
+            let problems = [...appData.problems].sort((a, b) => b.number - a.number);
+            
+            if (filterValue !== 'all') {
+                problems = problems.filter(p => p.templateId === filterValue);
+            }
+            
+            if (problems.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎯</div>
+                        <p>还没有刷过题目</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = problems.map(p => {
+                const template = appData.templates.find(t => t.id === p.templateId);
+                const difficultyText = p.difficulty === 'easy' ? '简单' : 
+                                       p.difficulty === 'medium' ? '中等' : '困难';
+                const addedDate = new Date(p.addedDate).toLocaleDateString('zh-CN');
+                
+                return `
+                    <div class="problem-item">
+                        <div class="problem-item-left">
+                            <span class="problem-item-number">#${p.number}</span>
+                            <div class="problem-item-info">
+                                <span class="problem-item-name">${p.name}</span>
+                                <div class="problem-item-meta">
+                                    <span>${addedDate}</span>
+                                    <span class="difficulty-tag difficulty-${p.difficulty}">${difficultyText}</span>
+                                    <span class="template-tag">${template?.name || '未分类'}</span>
+                                    <span>复习${p.reviewCount || 0}次</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="deleteProblem('${p.id}')" title="删除">✕</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateReviewArea() {
+            const container = document.getElementById('reviewTemplateList');
+            const templates = getTodayReviewTemplates();
+            
+            if (templates.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎉</div>
+                        <p>今日没有需要复习的模版</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">去添加新题目吧！</p>
+                    </div>
+                `;
+                document.getElementById('startReviewBtn').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('startReviewBtn').style.display = 'inline-flex';
+            
+            // 今日只复习第1个模版
+            const todayTemplate = templates[0];
+            const problems = appData.problems.filter(p => p.templateId === todayTemplate.id);
+            
+            container.innerHTML = `
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <p style="color: var(--text-secondary); margin-bottom: 8px;">今日复习任务</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">
+                        1 个模版 + 2 道题目
+                        ${templates.length > 1 ? `<span style="color: var(--claude-tan);">（还有 ${templates.length - 1} 个模版待复习）</span>` : ''}
+                    </p>
+                </div>
+                <div class="template-card needs-review" style="max-width: 400px; margin: 0 auto;">
+                    <div class="template-header">
+                        <span class="template-name">${todayTemplate.name}</span>
+                        <span class="template-count">${problems.length} 题</span>
+                    </div>
+                    <div class="template-meta">
+                        <span>🔄 第 ${(todayTemplate.reviewLevel || 0) + 1} 次复习</span>
+                        <span>📝 随机抽 2 题</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        let currentCalendarDate = new Date();
+
+        function updateCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            
+            document.getElementById('calendarMonth').textContent = `${year}年${month + 1}月`;
+            
+            const container = document.getElementById('calendarGrid');
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const dayHeaders = ['日', '一', '二', '三', '四', '五', '六'];
+            let html = dayHeaders.map(d => `<div class="calendar-day-header">${d}</div>`).join('');
+            
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                html += `<div class="calendar-day empty"></div>`;
+            }
+            
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const date = new Date(year, month, day);
+                const isToday = date.getTime() === today.getTime();
+                const hasActivity = appData.activityDates.includes(date.toDateString());
+                
+                let classes = 'calendar-day';
+                if (isToday) classes += ' today';
+                if (hasActivity) classes += ' has-activity';
+                
+                html += `<div class="${classes}">${day}</div>`;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // ==================== 复习流程 ====================
+        function startReview() {
+            const templates = getTodayReviewTemplates();
+            if (templates.length === 0) {
+                showToast('没有需要复习的模版');
+                return;
+            }
+            
+            // 每天只复习 1 个模版（取最需要复习的那个）
+            const todayTemplate = templates[0];
+            
+            reviewState = {
+                templatesQueue: [todayTemplate], // 只放 1 个
+                currentTemplateIndex: 0,
+                currentProblems: [],
+                currentProblemIndex: 0,
+                totalTemplates: 1,
+                totalProblems: 0,
+                reviewedProblems: 0
+            };
+            
+            document.getElementById('reviewArea').style.display = 'none';
+            document.getElementById('reviewFlow').style.display = 'block';
+            
+            showTemplateStep();
+        }
+
+        function showTemplateStep() {
+            const template = reviewState.templatesQueue[reviewState.currentTemplateIndex];
+            
+            document.querySelectorAll('.review-step').forEach(s => s.classList.remove('active'));
+            document.getElementById('reviewStep1').classList.add('active');
+            
+            document.getElementById('reviewCounter').textContent = `今日模版`;
+            document.getElementById('currentTemplateName').textContent = template.name;
+            
+            // 预先获取这个模版的随机题目（2道）
+            reviewState.currentProblems = getRandomProblemsForTemplate(template.id, 2);
+            reviewState.currentProblemIndex = 0;
+            reviewState.totalProblems += reviewState.currentProblems.length;
+        }
+
+        function showProblemStep() {
+            if (reviewState.currentProblems.length === 0) {
+                // 没有题目，直接完成
+                finishCurrentTemplate(true);
+                return;
+            }
+            
+            const problem = reviewState.currentProblems[reviewState.currentProblemIndex];
+            const template = reviewState.templatesQueue[reviewState.currentTemplateIndex];
+            
+            document.querySelectorAll('.review-step').forEach(s => s.classList.remove('active'));
+            document.getElementById('reviewStep2').classList.add('active');
+            
+            document.getElementById('problemCounter').textContent = 
+                `题目 ${reviewState.currentProblemIndex + 1} / ${reviewState.currentProblems.length}`;
+            document.getElementById('currentProblemNumber').textContent = `#${problem.number}`;
+            document.getElementById('currentProblemName').textContent = problem.name;
+            
+            const difficultyText = problem.difficulty === 'easy' ? '简单' : 
+                                   problem.difficulty === 'medium' ? '中等' : '困难';
+            document.getElementById('currentProblemDifficulty').textContent = difficultyText;
+            document.getElementById('currentProblemTemplate').textContent = template.name;
+        }
+
+        // 鼓励话语
+        const ENCOURAGEMENTS = {
+            success: [
+                "🎉 太棒了！肌肉记忆在线！",
+                "💪 稳如老狗，继续保持！",
+                "🌟 这题已经刻进DNA里了！",
+                "🔥 秒杀！面试官都得鼓掌！",
+                "👏 完美！模版已融入血液！",
+                "🚀 起飞！这题拿捏了！",
+                "✨ 漂亮！条件反射级别！",
+                "🏆 冠军实力，下一题！"
+            ],
+            fail: [
+                "💡 没关系，忘了就是要复习的信号！",
+                "📝 记下来，下次一定秒杀！",
+                "🔄 遗忘曲线会帮你安排加练的～",
+                "🌱 每次失败都是进步的养分！",
+                "💭 现在想起来了吧？下次稳了！",
+                "🎯 这题后面会多出现几次的～",
+                "📚 温故知新，马上就熟了！",
+                "⏰ 今天的坑，明天的经验！"
+            ]
+        };
+        
+        function getRandomEncouragement(success) {
+            const list = success ? ENCOURAGEMENTS.success : ENCOURAGEMENTS.fail;
+            return list[Math.floor(Math.random() * list.length)];
+        }
+
+        async function handleProblemResult(success) {
+            const problem = reviewState.currentProblems[reviewState.currentProblemIndex];
+            
+            problem.reviewCount = (problem.reviewCount || 0) + 1;
+            problem.lastReviewDate = new Date().toISOString();
+            
+            if (!success) {
+                problem.failCount = (problem.failCount || 0) + 1;
+            }
+            
+            await dbOps.updateProblem(problem);
+            reviewState.reviewedProblems++;
+            
+            // 显示鼓励话语
+            showToast(getRandomEncouragement(success));
+            
+            // 下一题
+            reviewState.currentProblemIndex++;
+            
+            if (reviewState.currentProblemIndex < reviewState.currentProblems.length) {
+                // 延迟一下再显示下一题，让用户看到鼓励
+                setTimeout(() => showProblemStep(), 800);
+            } else {
+                // 当前模版的题目都复习完了
+                setTimeout(() => finishCurrentTemplate(success), 800);
+            }
+        }
+
+        async function finishCurrentTemplate(lastSuccess) {
+            const template = reviewState.templatesQueue[reviewState.currentTemplateIndex];
+            
+            // 更新模版的复习状态
+            template.lastReviewDate = new Date().toISOString();
+            template.reviewLevel = (template.reviewLevel || 0) + 1;
+            await dbOps.updateTemplate(template);
+            
+            // 更新内存数据
+            const idx = appData.templates.findIndex(t => t.id === template.id);
+            if (idx !== -1) {
+                appData.templates[idx] = template;
+            }
+            
+            // 下一个模版
+            reviewState.currentTemplateIndex++;
+            
+            if (reviewState.currentTemplateIndex < reviewState.templatesQueue.length) {
+                showTemplateStep();
+            } else {
+                // 全部复习完成
+                await recordActivity();
+                showCompletionStep();
+            }
+        }
+
+        function showCompletionStep() {
+            document.querySelectorAll('.review-step').forEach(s => s.classList.remove('active'));
+            document.getElementById('reviewStep3').classList.add('active');
+            
+            document.getElementById('reviewSummary').textContent = 
+                `共复习 ${reviewState.totalTemplates} 个模版，${reviewState.reviewedProblems} 道题目`;
+        }
+
+        function finishReview() {
+            document.getElementById('reviewArea').style.display = 'block';
+            document.getElementById('reviewFlow').style.display = 'none';
+            updateUI();
+        }
+
+        // ==================== 事件处理 ====================
+        
+        // 标签页切换
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tab = this.dataset.tab;
+                
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                this.classList.add('active');
+                document.getElementById(`tab-${tab}`).classList.add('active');
+            });
+        });
+
+        // 添加题目
+        document.getElementById('addProblemForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const number = parseInt(document.getElementById('problemNumber').value);
+            const name = document.getElementById('problemName').value.trim();
+            const templateId = document.getElementById('problemTemplate').value;
+            const difficulty = document.getElementById('problemDifficulty').value;
+            const notes = document.getElementById('problemNotes').value.trim();
+            
+            if (!templateId) {
+                showToast('⚠️ 请选择模版', 'warning');
+                return;
+            }
+            
+            if (appData.problems.some(p => p.number === number)) {
+                showToast('⚠️ 该题目已存在', 'warning');
+                return;
+            }
+            
+            const problem = {
+                id: Date.now().toString(),
+                number,
+                name,
+                templateId,
+                difficulty,
+                notes,
+                addedDate: new Date().toISOString(),
+                reviewCount: 0,
+                failCount: 0,
+                lastReviewDate: null
+            };
+            
+            try {
+                await dbOps.addProblem(problem);
+                appData.problems.push(problem);
+                await recordActivity();
+                updateUI();
+                
+                document.getElementById('problemNumber').value = '';
+                document.getElementById('problemName').value = '';
+                document.getElementById('problemNotes').value = '';
+                
+                showToast('✅ 题目添加成功');
+            } catch (error) {
+                showToast('❌ 添加失败', 'error');
+            }
+        });
+
+        // 创建模版表单
+        document.getElementById('createTemplateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('newTemplateName').value.trim();
+            const code = document.getElementById('newTemplateCode').value.trim();
+            if (!name) return;
+            
+            await addTemplateWithCode(name, code);
+            document.getElementById('newTemplateName').value = '';
+            document.getElementById('newTemplateCode').value = '';
+        });
+
+        // 预设模版按钮
+        document.querySelectorAll('.preset-template').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const name = this.dataset.name;
+                await addTemplateWithCode(name, '');
+            });
+        });
+
+        // 添加模版（带代码）
+        async function addTemplateWithCode(name, code = '') {
+            if (appData.templates.some(t => t.name === name)) {
+                showToast('⚠️ 该模版已存在', 'warning');
+                const existing = appData.templates.find(t => t.name === name);
+                return existing ? existing.id : null;
+            }
+            
+            const template = {
+                id: Date.now().toString(),
+                name,
+                code: code || '',
+                createdAt: new Date().toISOString(),
+                reviewLevel: 0,
+                lastReviewDate: null
+            };
+            
+            try {
+                await dbOps.addTemplate(template);
+                appData.templates.push(template);
+                updateUI();
+                showToast(`✅ 模版"${name}"已创建`);
+                return template.id;
+            } catch (error) {
+                showToast('❌ 创建失败', 'error');
+                return null;
+            }
+        }
+
+        // ==================== 模版弹窗控制 ====================
+        let currentEditingTemplateId = null;
+        
+        function openTemplateModal(templateId = null) {
+            currentEditingTemplateId = templateId;
+            const modal = document.getElementById('templateModal');
+            const title = document.getElementById('templateModalTitle');
+            const nameInput = document.getElementById('modalTemplateName');
+            const codeInput = document.getElementById('modalTemplateCode');
+            
+            if (templateId) {
+                // 编辑模式
+                const template = appData.templates.find(t => t.id === templateId);
+                if (template) {
+                    title.textContent = '编辑模版';
+                    nameInput.value = template.name;
+                    codeInput.value = template.code || '';
+                }
+            } else {
+                // 新建模式
+                title.textContent = '新建模版';
+                nameInput.value = '';
+                codeInput.value = '';
+            }
+            
+            modal.classList.add('active');
+            nameInput.focus();
+        }
+        
+        function closeTemplateModal() {
+            document.getElementById('templateModal').classList.remove('active');
+            currentEditingTemplateId = null;
+        }
+        
+        // 模版弹窗表单提交
+        document.getElementById('templateModalForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('modalTemplateName').value.trim();
+            const code = document.getElementById('modalTemplateCode').value;
+            
+            if (!name) {
+                showToast('⚠️ 请输入模版名称', 'warning');
+                return;
+            }
+            
+            if (currentEditingTemplateId) {
+                // 更新现有模版
+                const templateIndex = appData.templates.findIndex(t => t.id === currentEditingTemplateId);
+                if (templateIndex !== -1) {
+                    const template = appData.templates[templateIndex];
+                    
+                    // 检查名称是否与其他模版重复
+                    if (appData.templates.some(t => t.name === name && t.id !== currentEditingTemplateId)) {
+                        showToast('⚠️ 该模版名称已存在', 'warning');
+                        return;
+                    }
+                    
+                    // 更新数据
+                    template.name = name;
+                    template.code = code;
+                    
+                    try {
+                        await dbOps.updateTemplate(template);
+                        // 确保内存中的数据也更新
+                        appData.templates[templateIndex] = { ...template };
+                        updateUI();
+                        closeTemplateModal();
+                        showToast('✅ 模版已更新');
+                    } catch (error) {
+                        console.error('更新失败:', error);
+                        showToast('❌ 更新失败', 'error');
+                    }
+                } else {
+                    showToast('❌ 找不到该模版', 'error');
+                }
+            } else {
+                // 创建新模版
+                const newId = await addTemplateWithCode(name, code);
+                if (newId) {
+                    // 如果是从添加题目页面打开的，自动选中
+                    const templateSelect = document.getElementById('problemTemplate');
+                    if (templateSelect) {
+                        templateSelect.value = newId;
+                    }
+                }
+                closeTemplateModal();
+            }
+        });
+        
+        // 点击遮罩关闭
+        document.getElementById('templateModal').addEventListener('click', function(e) {
+            if (e.target === this) closeTemplateModal();
+        });
+
+        // ==================== 查看模版代码弹窗 ====================
+        let currentViewingTemplateId = null;
+        
+        function viewTemplateCode(templateId) {
+            currentViewingTemplateId = templateId;
+            const template = appData.templates.find(t => t.id === templateId);
+            if (!template) return;
+            
+            document.getElementById('viewTemplateName').textContent = template.name;
+            const codeEl = document.getElementById('viewTemplateCode');
+            const emptyEl = document.getElementById('viewTemplateEmpty');
+            
+            if (template.code && template.code.trim()) {
+                codeEl.textContent = template.code;
+                codeEl.parentElement.style.display = 'block';
+                emptyEl.style.display = 'none';
+            } else {
+                codeEl.parentElement.style.display = 'none';
+                emptyEl.style.display = 'block';
+            }
+            
+            document.getElementById('viewTemplateModal').classList.add('active');
+        }
+        
+        function closeViewTemplateModal() {
+            document.getElementById('viewTemplateModal').classList.remove('active');
+            currentViewingTemplateId = null;
+        }
+        
+        function editCurrentTemplate() {
+            closeViewTemplateModal();
+            if (currentViewingTemplateId) {
+                openTemplateModal(currentViewingTemplateId);
+            }
+        }
+        
+        // 点击遮罩关闭
+        document.getElementById('viewTemplateModal').addEventListener('click', function(e) {
+            if (e.target === this) closeViewTemplateModal();
+        });
+
+        async function deleteTemplate(id) {
+            const template = appData.templates.find(t => t.id === id);
+            const problems = appData.problems.filter(p => p.templateId === id);
+            
+            if (problems.length > 0) {
+                if (!confirm(`该模版下有 ${problems.length} 道题目，删除模版会同时删除这些题目，确定吗？`)) {
+                    return;
+                }
+                
+                for (const p of problems) {
+                    await dbOps.deleteProblem(p.id);
+                }
+                appData.problems = appData.problems.filter(p => p.templateId !== id);
+            }
+            
+            await dbOps.deleteTemplate(id);
+            appData.templates = appData.templates.filter(t => t.id !== id);
+            updateUI();
+            showToast('🗑️ 模版已删除');
+        }
+
+        async function deleteProblem(id) {
+            if (!confirm('确定要删除这道题目吗？')) return;
+            
+            await dbOps.deleteProblem(id);
+            appData.problems = appData.problems.filter(p => p.id !== id);
+            updateUI();
+            showToast('🗑️ 题目已删除');
+        }
+
+        function viewTemplateProblems(templateId) {
+            document.getElementById('filterTemplate').value = templateId;
+            document.querySelector('[data-tab="problems"]').click();
+            updateProblemList();
+        }
+
+        // 复习按钮
+        document.getElementById('startReviewBtn').addEventListener('click', startReview);
+        document.getElementById('showProblemsBtn').addEventListener('click', showProblemStep);
+        document.getElementById('reviewSuccessBtn').addEventListener('click', () => handleProblemResult(true));
+        document.getElementById('reviewFailBtn').addEventListener('click', () => handleProblemResult(false));
+        document.getElementById('finishReviewBtn').addEventListener('click', finishReview);
+
+        // 筛选
+        document.getElementById('filterTemplate').addEventListener('change', updateProblemList);
+
+        // 日历
+        document.getElementById('prevMonth').addEventListener('click', function() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+            updateCalendar();
+        });
+
+        document.getElementById('nextMonth').addEventListener('click', function() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            updateCalendar();
+        });
+
+        // 导入导出
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            const exportData = {
+                version: 3,
+                exportDate: new Date().toISOString(),
+                templates: appData.templates,
+                problems: appData.problems,
+                activityDates: appData.activityDates
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `leetcode_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            setLastBackupDate(); // 记录备份时间
+            showToast('📤 数据已备份');
+        });
+
+        document.getElementById('importBtn').addEventListener('click', function() {
+            document.getElementById('importInput').click();
+        });
+
+        document.getElementById('importInput').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.templates && data.problems) {
+                        await dbOps.clearAll();
+                        await dbOps.importData(
+                            data.templates,
+                            data.problems,
+                            data.activityDates || []
+                        );
+                        await loadData();
+                        updateUI();
+                        showToast('📥 数据导入成功');
+                    } else {
+                        showToast('⚠️ 文件格式不正确', 'warning');
+                    }
+                } catch (err) {
+                    showToast('❌ 导入失败', 'error');
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        });
+
+        // Toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.querySelector('.toast-text').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ==================== Tab 键缩进支持 ====================
+        function enableTabIndent(textarea) {
+            textarea.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    const value = this.value;
+                    
+                    if (e.shiftKey) {
+                        // Shift+Tab: 减少缩进
+                        const beforeCursor = value.substring(0, start);
+                        const lineStart = beforeCursor.lastIndexOf('\n') + 1;
+                        const lineContent = value.substring(lineStart, end);
+                        
+                        // 检查行首是否有空格或 Tab
+                        if (value.substring(lineStart, lineStart + 4) === '    ') {
+                            // 删除 4 个空格
+                            this.value = value.substring(0, lineStart) + value.substring(lineStart + 4);
+                            this.selectionStart = this.selectionEnd = start - 4;
+                        } else if (value.charAt(lineStart) === '\t') {
+                            // 删除 Tab
+                            this.value = value.substring(0, lineStart) + value.substring(lineStart + 1);
+                            this.selectionStart = this.selectionEnd = start - 1;
+                        }
+                    } else {
+                        // Tab: 插入 4 个空格
+                        const indent = '    ';
+                        this.value = value.substring(0, start) + indent + value.substring(end);
+                        this.selectionStart = this.selectionEnd = start + indent.length;
+                    }
+                }
+                
+                // Enter 键自动缩进
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    
+                    const start = this.selectionStart;
+                    const value = this.value;
+                    
+                    // 找到当前行的开头
+                    const beforeCursor = value.substring(0, start);
+                    const lineStart = beforeCursor.lastIndexOf('\n') + 1;
+                    const currentLine = value.substring(lineStart, start);
+                    
+                    // 获取当前行的缩进
+                    const indentMatch = currentLine.match(/^(\s*)/);
+                    const indent = indentMatch ? indentMatch[1] : '';
+                    
+                    // 检查是否需要额外缩进（如果行末是 : 或 { ）
+                    const trimmedLine = currentLine.trim();
+                    let extraIndent = '';
+                    if (trimmedLine.endsWith(':') || trimmedLine.endsWith('{')) {
+                        extraIndent = '    ';
+                    }
+                    
+                    // 插入换行和缩进
+                    const newContent = '\n' + indent + extraIndent;
+                    this.value = value.substring(0, start) + newContent + value.substring(this.selectionEnd);
+                    this.selectionStart = this.selectionEnd = start + newContent.length;
+                }
+            });
+        }
+        
+        // 为所有代码输入框启用 Tab 缩进
+        document.querySelectorAll('#newTemplateCode, #modalTemplateCode').forEach(enableTabIndent);
+
+        // ==================== 备份提醒系统 ====================
+        const BACKUP_REMINDER_DAYS = 7; // 每7天提醒一次
+        
+        function getLastBackupDate() {
+            return localStorage.getItem('leetcode_last_backup_date');
+        }
+        
+        function setLastBackupDate() {
+            localStorage.setItem('leetcode_last_backup_date', new Date().toISOString());
+        }
+        
+        function shouldRemindBackup() {
+            const lastBackup = getLastBackupDate();
+            if (!lastBackup) return true; // 从未备份过
+            
+            const lastDate = new Date(lastBackup);
+            const now = new Date();
+            const daysDiff = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
+            
+            return daysDiff >= BACKUP_REMINDER_DAYS;
+        }
+        
+        function showBackupReminder() {
+            const modal = document.getElementById('backupReminderModal');
+            const lastBackup = getLastBackupDate();
+            const lastBackupText = document.getElementById('lastBackupDate');
+            
+            if (lastBackup) {
+                const date = new Date(lastBackup);
+                lastBackupText.textContent = `上次备份: ${date.toLocaleDateString('zh-CN')}`;
+            } else {
+                lastBackupText.textContent = '你还从未备份过数据';
+            }
+            
+            modal.classList.add('active');
+        }
+        
+        function closeBackupReminder() {
+            document.getElementById('backupReminderModal').classList.remove('active');
+        }
+        
+        function doBackupNow() {
+            const exportData = {
+                version: 3,
+                exportDate: new Date().toISOString(),
+                templates: appData.templates,
+                problems: appData.problems,
+                activityDates: appData.activityDates
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `leetcode_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            setLastBackupDate();
+            closeBackupReminder();
+            showToast('✅ 备份成功！文件已下载');
+        }
+        
+        function remindLater() {
+            // 延后1天再提醒
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() - (BACKUP_REMINDER_DAYS - 1));
+            localStorage.setItem('leetcode_last_backup_date', tomorrow.toISOString());
+            closeBackupReminder();
+            showToast('⏰ 明天再提醒你');
+        }
+
+        // ==================== 初始化 ====================
+        async function initApp() {
+            try {
+                document.body.style.opacity = '0.7';
+                await initDB();
+                await loadData();
+                updateUI();
+                document.body.style.opacity = '1';
+                
+                // 检查是否需要备份提醒
+                if (appData.problems.length > 0 && shouldRemindBackup()) {
+                    setTimeout(showBackupReminder, 1000); // 延迟1秒显示，避免页面还没完全加载
+                }
+            } catch (error) {
+                console.error('初始化失败:', error);
+                document.body.style.opacity = '1';
+                showToast('❌ 初始化失败', 'error');
+            }
+        }
+
+        initApp();
+    </script>
+</body>
+</html>
