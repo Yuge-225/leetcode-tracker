@@ -7,13 +7,10 @@
 class Solution:
     def isValidBST(self, root: Optional[TreeNode]) -> bool:
         
-
-        def solve(root,min_val,max_val):
+        def solve(root, min_val,max_val):
             if root is None:
                 return True
             if root.val <= min_val or root.val >= max_val:
                 return False
-            return solve(root.left,min_val,root.val) and solve(root.right,root.val,max_val)
-        
+            return solve(root.left,min_val,root.val) & solve(root.right,root.val,max_val)
         return solve(root,float("-inf"),float("inf"))
-            
