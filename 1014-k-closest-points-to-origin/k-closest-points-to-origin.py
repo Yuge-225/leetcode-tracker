@@ -8,15 +8,11 @@ class Solution:
         for point in points:
 
             distance = calculate_dist(point)
-            print(f"point = {point}, distance = {distance}")
             heapq.heappush(heap,(-distance,point))
             if len(heap) > k:
                 heapq.heappop(heap)
 
-        res = []
-        for candidate in heap:
-            res.append(candidate[1])
-        return res
+        return [point for _,point in heap]
 
 
 
