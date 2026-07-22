@@ -32,9 +32,7 @@ class Solution:
         n = len(isConnected)
         union_find = UnionFind(n)
         for i in range(n):
-            for j in range(n):
-                if i == j:
-                    continue
+            for j in range(i+1,n):
                 if isConnected[i][j] == 1:
                     union_find.union(i,j)
         return union_find.get_count()
