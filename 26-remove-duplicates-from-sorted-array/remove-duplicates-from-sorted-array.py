@@ -3,7 +3,6 @@ class Solution:
         if not nums:
             return 0
         fast = slow = 0
-        numSet = set()
         while fast < len(nums):
             if nums[fast] != nums[slow]:
                 slow += 1
