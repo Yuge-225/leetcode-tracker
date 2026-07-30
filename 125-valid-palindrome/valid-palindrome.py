@@ -4,10 +4,8 @@ class Solution:
         processed_s = []
         for word in words:
             for char in word:
-                if ord(char.lower()) >= ord('a') and ord(char.lower()) <= ord('z'):
+                if char.isalnum():
                     processed_s.append(char.lower())
-                elif char.isdigit():
-                    processed_s.append(char)
                 else:
                     continue
         left,right = 0, len(processed_s) - 1
