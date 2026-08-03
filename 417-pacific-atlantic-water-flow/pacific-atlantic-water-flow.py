@@ -1,5 +1,68 @@
 class Solution:
     def pacificAtlantic(self, heights: List[List[int]]) -> List[List[int]]:
+        
+        def dfs(graph,i,j,visited):
+            if i < 0 or i >= len(graph) or j < 0 or j >= len(graph[0]):
+                return
+            if (i,j) in visited:
+                return
+            
+            visited.add((i,j))
+
+            directions = [(-1,0),(1,0),(0,-1),(0,1)]
+            for dx,dy in directions:
+                new_i = dx + i
+                new_j = dy + j
+                if new_i < 0 or new_i >= len(graph) or new_j < 0 or new_j >= len(graph[0]):
+                    continue
+                if graph[new_i][new_j] < graph[i][j]:
+                    continue
+                dfs(graph,new_i,new_j,visited)
+        
+        pacific_visited = set()
+        atlantic_visited = set()
+        graph = heights
+        m = len(graph)
+        n = len(graph[0])
+
+        # up
+        for j in range(0,n):
+            dfs(graph,0,j,pacific_visited)
+
+        # left
+        for i in range(0,m):
+            dfs(graph,i,0,pacific_visited)
+
+        # bottom
+        for j in range(0,n):
+            dfs(graph,m-1,j,atlantic_visited)
+
+        # right
+        for i in range(0,m):
+            dfs(graph,i,n-1,atlantic_visited)
+
+        res = []
+        for points in pacific_visited:
+            if points in atlantic_visited:
+                res.append(points)
+        return res
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
+
+class Solution:
+    def pacificAtlantic(self, heights: List[List[int]]) -> List[List[int]]:
 
         def dfs(grid,i,j,visited):
             if i < 0 or i >= len(grid) or j < 0 or j >= len(grid[0]):
@@ -48,3 +111,5 @@ class Solution:
             if points in pacific_visited:
                 res.append(points)
         return res
+
+"""
