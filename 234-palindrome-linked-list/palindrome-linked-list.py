@@ -9,6 +9,40 @@ class Solution:
         while fast and fast.next:
             fast = fast.next.next
             slow = slow.next
+
+        prev = None
+        curr = slow
+        while curr:
+            nxt = curr.next
+            curr.next = prev
+            prev = curr
+            curr = nxt
+        
+        while head and prev:
+            if head.val == prev.val:
+                head = head.next
+                prev = prev.next
+            else:
+                return False
+        return True
+
+
+
+
+
+"""
+
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def isPalindrome(self, head: Optional[ListNode]) -> bool:
+        fast = slow = head
+        while fast and fast.next:
+            fast = fast.next.next
+            slow = slow.next
         
         curr = slow
         prev = None
@@ -30,15 +64,6 @@ class Solution:
 
 
 
-
-
-
-
-
-
-
-
-"""
 fast = slow = head
         while fast and fast.next:
             fast = fast.next.next
