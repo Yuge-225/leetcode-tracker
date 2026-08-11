@@ -11,10 +11,7 @@ class Solution:
             if not nums:
                 return 
             root_val = max(nums)
-            root_idx = -1
-            for i in range(len(nums)):
-                if nums[i] == root_val:
-                    root_idx = i
+            root_idx = nums.index(root_val)
             root = TreeNode(root_val)
             root.left = solve(nums[:root_idx])
             root.right = solve(nums[root_idx+1:])
