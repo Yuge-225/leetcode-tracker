@@ -5,7 +5,7 @@ class Solution:
             mid = left + (right-left)//2
             if nums[mid] == target:
                 return mid
-                
+
             if nums[left] <= nums[mid]: #左半边有序
                 if nums[left] <= target < nums[mid]:
                     right = mid - 1
