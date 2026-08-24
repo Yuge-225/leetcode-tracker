@@ -1,3 +1,65 @@
+class UnionFind: 
+    def __init__(self,n): 
+        self.parent = list(range(n)) 
+        self.rank = [0] * n 
+        self.count = n 
+    def find(self,x): 
+        if self.parent[x] != x: 
+            self.parent[x] = self.find(self.parent[x]) 
+        return self.parent[x] 
+    def union(self,x,y): 
+        root_x = self.find(x) 
+        root_y = self.find(y) 
+        if root_x == root_y: 
+            return 
+        if self.rank[root_x] > self.rank[root_y]: 
+            self.parent[root_y] = root_x 
+        elif self.rank[root_y] > self.rank[root_x]: 
+            self.parent[root_x] = root_y 
+        else:
+            self.parent[root_y] = root_x 
+            self.rank[root_x] += 1 
+        self.count -= 1 
+    def connected(self,x,y): 
+        return self.find(x) == self.find(y) 
+    def get_count(self): 
+        return self.count
+class Solution:
+    def minCostConnectPoints(self, points: List[List[int]]) -> int:
+        n = len(points)
+        edges = []
+        for i in range(n):
+            for j in range(i,n):
+                point1 = points[i]
+                point2 = points[j]
+
+                distance = abs(point1[0] - point2[0]) + abs(point1[1] - point2[1])
+                edges.append((i,j,distance))
+        
+        uf = UnionFind(n)
+        total_cost = 0
+        edges_used = 0
+
+        edges.sort(key=lambda x:x[2])
+        for u,v,weight in edges:
+            if uf.connected(u,v):
+                continue
+            else:
+                uf.union(u,v)
+                total_cost += weight
+                edges_used += 1
+        return total_cost if edges_used == n-1 else -1
+
+
+
+
+
+
+
+
+
+"""
+
 # 第一步UnionFind骨架
 class UnionFind:
     def __init__(self,n):
@@ -61,3 +123,5 @@ class Solution:
         return kruskal(n,edges)
 
 
+
+"""
