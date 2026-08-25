@@ -2,17 +2,19 @@ class TrieNode:
     def __init__(self):
         self.children = {}
         self.endOfWord = False
+
 class Trie:
     def __init__(self):
         self.root = TrieNode()
+
     def insert(self,root_word):
         node = self.root
         for char in root_word:
             if char not in node.children:
-                child_node = TrieNode()
-                node.children[char] = child_node
+                node.children[char] = TrieNode()
             node = node.children[char]
         node.endOfWord = True
+
     def search_prefix(self,word):
         node = self.root
         prefix = ""
@@ -20,12 +22,12 @@ class Trie:
             if char not in node.children:
                 return word
             else:
-                prefix += char
                 node = node.children[char]
+                prefix += char
                 if node.endOfWord:
                     return prefix
         return word
-    
+        
 
             
 class Solution:
@@ -35,7 +37,8 @@ class Solution:
             trie.insert(root_word)
         res = []
         for word in sentence.split():
-            res.append(trie.search_prefix(word))
+            transformed_word = trie.search_prefix(word)
+            res.append(transformed_word)
         return " ".join(res)
 
 """
