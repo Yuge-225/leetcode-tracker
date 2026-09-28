@@ -10,4 +10,4 @@ class Solution:
                 if dist[u] != float("inf") and dist[u] + w < new_dist[v]:
                     new_dist[v] = dist[u] + w
             dist = new_dist
-        return dist[dst] if dist[dst] != float("inf") else -1 
+        return dist[dst] if dist[dst] != float("inf") else -1
