@@ -8,10 +8,8 @@ class Solution:
         is_prime[0] = False
         is_prime[1] = False
 
-        # 遍历所有数字
         for i in range(2,n):
             if is_prime[i]:
-                # 排除i的所有倍数
-                for j in range(i * i,n,i):
+                for j in range(i*i,n,i):
                     is_prime[j] = False
         return sum(is_prime)
